@@ -1,18 +1,18 @@
 chrome.runtime.onMessage.addListener(function (text, sender, sendResponse) {
     if (text.msg === 'show_form') {
-      showForm(false, text.id, text.error_code, text.error_type, text.choice);
+      showForm(false, text.data);
       sendResponse();
     }else if(text.msg === 'show_intro_form'){
-      showForm(true, text.id, text.error_code, text.error_type, text.choice);
+      showForm(true, text.data);
       sendResponse();
     }
 });
 
 function getUrl(showIntroForm){
   if(showIntroForm){
-    return "https://browserwarning.herokuapp.com/introform.html?id="
+    return "http://localhost:3000/introForm?id="
   } else {
-    return "https://browserwarning.herokuapp.com/form.html?id="
+    return "http://localhost:3000/form?id="
   }
 }
 
@@ -24,7 +24,7 @@ function getHeight(showIntroForm){
   }
 }
 
-function showForm(showIntroForm, id, error_code, error_type, choice){
+function showForm(showIntroForm, data){
 
   window.scrollTo(0, 0);
 
@@ -32,7 +32,7 @@ function showForm(showIntroForm, id, error_code, error_type, choice){
 
   const src = document.createAttribute("src");
   
-  src.value = getUrl(showIntroForm) + id + "&error_code=" + error_code + "&error_type=" + error_type + "&choice=" + choice;
+  src.value = getUrl(showIntroForm) + data.id + "&error_code=" + data.error_code + "&warning_url=" + data.warning_url + "&choice=" + data.choice;
   iframe.setAttributeNode(src);
 
   const height = document.createAttribute("height")

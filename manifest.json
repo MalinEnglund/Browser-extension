@@ -13,7 +13,7 @@
     "webNavigation","tabs","storage","history", "activeTab","http://*/*","https://*/*"
   ],
   "background": {
-    "scripts": ["background.js","installation.js"],
+    "scripts": ["background/detection.js","background/installation.js", "background/apiCalls.js", "background/local.js"],
     "persistent": false
   },
   "browser_action": {

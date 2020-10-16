@@ -13,27 +13,8 @@ function isInBrowserHistory(data, url){
   })
 }
 
-const myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
-
-function sendData(data){
-  fetch("https://browserwarning.herokuapp.com/postData", {
-    method: 'POST',
-    headers: myHeaders,
-    body: JSON.stringify(data),
-    redirect: 'follow'
-  })
-  .catch(error => console.log('error', error));
-};
-
-function getId(data){
-  chrome.storage.sync.get(['_id'], function(result) {
-    data.id = result._id;
-  });
-}
-
 function dataGathering(data, url, error){ 
-  getId(data);
+  getIdLocal(data);
   data.user_agent = navigator.userAgent;
   isInBrowserHistory(data, url);
   data.error_code = error;
@@ -46,7 +27,7 @@ function detectWarning(details) {
     choice : false,
     time : details.timeStamp,
     error_code : "",
-    error_type : details.url,
+    warning_url : details.url,
     user_agent : "",
     bh : false
   }
@@ -74,30 +55,14 @@ function detectWarning(details) {
 
 }
 
-function setIntroIsShownTrue(){
-  chrome.storage.sync.set({introIsShown : true})
-}
-
-function setIntroIsShownFalse(){
-  chrome.storage.sync.set({introIsShown : false}, function(arg){
-    console.log("setIntroIsShownFalse")
-  })
-}
-
-function chooseForm(callback, data, tabId){
-  chrome.storage.sync.get(['introIsShown'], function(result) {
-    callback(result.introIsShown, data, tabId);
-  })
-}
-
 function showForm(isShown, data, tabId){
   if(isShown){
-    chrome.tabs.executeScript(tabId, {file: "content.js"}, function() {
-      chrome.tabs.sendMessage(tabId, {msg: 'show_form', id : data.id, error_code: data.error_code, error_type: data.error_type, choice : data.choice} , setIntroIsShownTrue);
+    chrome.tabs.executeScript(tabId, {file: "content/injectForm.js"}, function() {
+      chrome.tabs.sendMessage(tabId, {msg: 'show_form', data} , setIntroIsShownTrue);
     })
   }else{
-    chrome.tabs.executeScript(tabId, {file: "content.js"}, function() {
-      chrome.tabs.sendMessage(tabId, {msg: 'show_intro_form', id : data.id, error_code: data.error_code, error_type: data.error_type, choice : data.choice} , setIntroIsShownTrue);
+    chrome.tabs.executeScript(tabId, {file: "content/injectForm.js"}, function() {
+      chrome.tabs.sendMessage(tabId, {msg: 'show_intro_form', data} , setIntroIsShownTrue);
     })
   }
 }
